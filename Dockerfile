@@ -1,10 +1,5 @@
 FROM ls6uniwue/ocr4all_base:latest
 
-# Force tomcat to use java 8
-RUN rm /usr/lib/jvm/default-java && \
-    ln -s /usr/lib/jvm/java-1.8.0-openjdk-amd64 /usr/lib/jvm/default-java && \
-    update-alternatives --set java /usr/lib/jvm/java-8-openjdk-amd64/jre/bin/java
-
 ARG ARTIFACTORY_URL=http://artifactory-ls6.informatik.uni-wuerzburg.de/artifactory/libs-snapshot/de/uniwue
 
 ENV OCR4ALL_VERSION="0.0.2" \
@@ -42,35 +37,33 @@ RUN cd /opt && git clone https://github.com/Calamari-OCR/calamari.git && \
 #ENV DATABASE_URL sqlite:////opt/OCR4all_Web/submodules/nashi/server/test.db
 
 # Download maven project
-RUN cd /var/lib/tomcat8/webapps && \
-    wget $ARTIFACTORY_URL/OCR4all_Web/$OCR4ALL_VERSION/OCR4all_Web-$OCR4ALL_VERSION.war -O OCR4all_Web.war && \
-    wget $ARTIFACTORY_URL/GTC_Web/$GTCWEB_VERSION/GTC_Web-$GTCWEB_VERSION.war -O GTC_Web.war && \
+RUN cd /usr/local/tomcat/webapps && \
+    wget $ARTIFACTORY_URL/GTC_Web/$GTCWEB_VERSION/GTC_Web-$GTCWEB_VERSION.war -O GTC_Web.war 
+
+RUN cd /usr/local/tomcat/webapps && \
+    wget $ARTIFACTORY_URL/OCR4all_Web/$OCR4ALL_VERSION/OCR4all_Web-$OCR4ALL_VERSION.war -O OCR4all_Web.war 
+
+RUN cd /usr/local/tomcat/webapps && \
     wget $ARTIFACTORY_URL/Larex/$LAREX_VERSION/Larex-$LAREX_VERSION.war -O Larex.war
+
 
 # Create ocr4all directories and grant tomcat permissions
 RUN mkdir -p /var/ocr4all/data && \
     mkdir -p /var/ocr4all/models/default && \
     mkdir -p /var/ocr4all/models/custom && \
-    chmod -R g+w /var/ocr4all && \
-    chgrp -R tomcat8 /var/ocr4all
+    chmod -R g+w /var/ocr4all 
 
 # Make pretrained CALAMARI models available to the project environment
 RUN cd /opt && git clone https://github.com/Calamari-OCR/ocr4all_models.git && \
     ln -s /opt/ocr4all_models/default /var/ocr4all/models/default/default;
 
-RUN ln -s /var/lib/tomcat8/common $CATALINA_HOME/common && \
-    ln -s /var/lib/tomcat8/server $CATALINA_HOME/server && \
-    ln -s /var/lib/tomcat8/shared $CATALINA_HOME/shared && \
-    ln -s /etc/tomcat8 $CATALINA_HOME/conf && \
-    mkdir $CATALINA_HOME/temp && \
-    mkdir $CATALINA_HOME/webapps && \
-    mkdir $CATALINA_HOME/logs && \
-    ln -s /var/lib/tomcat8/webapps/OCR4all_Web.war $CATALINA_HOME/webapps && \
-    ln -s /var/lib/tomcat8/webapps/GTC_Web.war $CATALINA_HOME/webapps && \
-    ln -s /var/lib/tomcat8/webapps/Larex.war $CATALINA_HOME/webapps
+RUN ln -s /usr/local/tomcat/common $CATALINA_HOME/common && \
+    ln -s /usr/local/tomcat/server $CATALINA_HOME/server && \
+    ln -s /usr/local/tomcat/shared $CATALINA_HOME/shared && \
+    ln -s /etc/tomcat8 $CATALINA_HOME/conf 
 
 # Create index.html for calling url without tool url part!
-COPY index.html /usr/share/tomcat8/webapps/ROOT/index.html
+COPY index.html /usr/local/tomcat/webapps/ROOT/index.html
 
 # Copy larex.config
 COPY larex.config /larex.config
