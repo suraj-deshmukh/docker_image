@@ -5,6 +5,7 @@ ARG ARTIFACTORY_URL=http://artifactory-ls6.informatik.uni-wuerzburg.de/artifacto
 ENV OCR4ALL_VERSION="0.0.2" \
     GTCWEB_VERSION="0.0.1" \
     LAREX_VERSION="0.0.1" \
+#    OPENCV_VERSION="3.4.2-1"\
     CALAMARI_COMMIT="8a2857b9a4cf66a514e344bc8b52973ab8f2882d" \
     OCROPY_COMMIT="a22a3ab4"
 
@@ -35,6 +36,10 @@ RUN cd /opt && git clone https://github.com/Calamari-OCR/calamari.git && \
 #ENV FLASK_APP nashi
 #ENV NASHI_SETTINGS /opt/OCR4all_Web/submodules/nashi/server/nashi-config.py
 #ENV DATABASE_URL sqlite:////opt/OCR4all_Web/submodules/nashi/server/test.db
+
+# Download OpenCV
+#RUN cd /usr/local/tomcat/lib && \
+#    wget http://central.maven.org/maven2/org/openpnp/opencv/$OPENCV_VERSION/opencv-$OPENCV_VERSION.jar -O opencv-$OPENCV_VERSION.jar
 
 # Download maven project
 RUN cd /usr/local/tomcat/webapps && \
